@@ -4,6 +4,7 @@ import telegram
 import time
 import json
 import logging
+import atexit
 
 # Load data from config.ini file
 config = configparser.ConfigParser()
@@ -21,10 +22,15 @@ validator_state = {
     }
 }
 
+@atexit.register
+def say_goodbye():
+    bot = telegram.Bot(token=config['TELEGRAM']['ACCESS_TOKEN'])
+    bot.sendMessage(chat_id=config['CHAT']['ID'], text=f'Validator monitor leave, bye~')
+
 if __name__ == '__main__':
     # print(config['TELEGRAM']['ACCESS_TOKEN'])
     bot = telegram.Bot(token=config['TELEGRAM']['ACCESS_TOKEN'])
-    bot.sendMessage(chat_id=config['CHAT']['ID'], text=f'Validator monitor start\n{json.dumps(validator, indent=2)}')
+    bot.sendMessage(chat_id=config['CHAT']['ID'], text=f'Validator monitor start\n{json.dumps(validator_state, indent=2)}')
     while True:
         for url in validator_state:
             res = requests.get(url)
