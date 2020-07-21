@@ -30,13 +30,13 @@ def say_goodbye():
 if __name__ == '__main__':
     # print(config['TELEGRAM']['ACCESS_TOKEN'])
     bot = telegram.Bot(token=config['TELEGRAM']['ACCESS_TOKEN'])
-    bot.sendMessage(chat_id=config['CHAT']['ID'], text=f'Validator monitor start\n{json.dumps(validator_state, indent=2)}')
+    bot.sendMessage(chat_id=config['CHAT']['ID'], text=f"`Validator` monitor *start*\n```{json.dumps(validator_state, indent=2)}```", parse_mode='MarkdownV2')
     while True:
         for url in validator_state:
             res = requests.get(url)
             try:
                 data = res.json()['data'][0]
-            except JSONDecodeError as e:
+            except json.decoder.JSONDecodeError as e:
                 log.exception(res.text)
                 continue
             log.info('%s, %s',data[1], data[3])
@@ -44,8 +44,10 @@ if __name__ == '__main__':
             state = data[3]
             if (state == 'active_online') == validator_state[url]['active']:
                 continue
-            message = f'Validator {index} state change to {state}'
-            bot.sendMessage(chat_id=config['CHAT']['ID'], text=message)
+            message = f'<b>{index}</b> change to {state}'
+            message = message.replace('active_online', 'active_online👍')
+            message = message.replace('active_offline', 'active_offline🗿')
+            bot.send_message(chat_id=config['CHAT']['ID'], text=message, parse_mode='HTML')
             validator_state[url]['active'] = not validator_state[url]['active'] 
-        time.sleep(3)
+        time.sleep(5)
 
