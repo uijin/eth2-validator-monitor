@@ -43,7 +43,7 @@ if __name__ == '__main__':
                     message = message.replace('active_online', 'active_online👍')
                     message = message.replace('active_offline', 'active_offline🗿')
                     bot.send_message(chat_id=config['CHAT']['ID'], text=message, parse_mode='HTML')
-                    validator_active[index] = not validator_active[index]
+                    validator_active[index] = not validator_active.get(index, True)
             except IndexError:
                 log.exception(res.text)
                 continue
